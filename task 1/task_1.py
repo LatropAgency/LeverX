@@ -1,6 +1,6 @@
 import json
-import sys
 from dicttoxml import dicttoxml
+import argparse
 
 
 class Serializer:
@@ -53,21 +53,23 @@ class Room:
 if __name__ == '__main__':
     rooms = {}
 
-    students_file_path = sys.argv[1]
-    rooms_file_path = sys.argv[2]
-    serializer_type = sys.argv[3]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('students', type=str)
+    parser.add_argument('rooms', type=str)
+    parser.add_argument('serializer', type=str, help='Serializer type')
+    args = parser.parse_args()
 
-    if serializer_type == 'json':
+    if args.serializer == 'json':
         Room.serializer = JsonSerializer()
-    elif serializer_type == 'xml':
+    elif args.serializer == 'xml':
         Room.serializer = XmlSerializer()
 
-    with open(rooms_file_path, 'r') as f:
+    with open(args.students, 'r') as f:
         objects = json.loads(f.read())
         for room in objects:
             rooms[room['id']] = Room(room['id'], room['name'])
 
-    with open(students_file_path, 'r') as f:
+    with open(args.rooms, 'r') as f:
         objects = json.loads(f.read())
         for student in objects:
             rooms.get(student['room']).add(Student(student['id'], student['name'], student['room']))
