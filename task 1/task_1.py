@@ -1,5 +1,4 @@
 import json
-from collections import defaultdict
 from dicttoxml import dicttoxml
 import argparse
 
@@ -18,7 +17,7 @@ class JsonSerializer(Serializer):
 class XmlSerializer(Serializer):
     def serialize(self, obj):
         my_item_func = lambda x: 'room'
-        xml = dicttoxml(obj, custom_root='rooms', attr_type=False, item_func=my_item_func)
+        xml = dicttoxml(obj.values(), custom_root='rooms', attr_type=False, item_func=my_item_func)
         with open('result.xml', 'w') as file:
             file.write(xml.decode('utf-8'))
 
@@ -38,8 +37,8 @@ def join(rooms: dict, students: dict):
 
 if __name__ == '__main__':
     serializer = None
-    rooms = defaultdict(list)
-    students = defaultdict(list)
+    rooms = {}
+    students = {}
     parser = argparse.ArgumentParser()
     parser.add_argument('students', type=str)
     parser.add_argument('rooms', type=str)
