@@ -156,11 +156,8 @@ if __name__ == '__main__':
     connection = mysql.connector.connect(**config)
     try:
         if connection.is_connected():
-            # cursor = connection.cursor()
-            # cursor.execute("create database if not exists leverx")
             rooms_dao = RoomDAO(connection)
             students_dao = StudentDAO(connection)
-            # cursor.execute("delete from rooms")  # нужно удалить
             rooms_dao.insert(rooms)
             students_dao.insert(students)
             print(rooms_dao.rooms_list_with_student_count())
@@ -168,49 +165,5 @@ if __name__ == '__main__':
             print(rooms_dao.top_5_rooms_with_max_students_age_diff())
             print(rooms_dao.rooms_with_males_and_females())
             students_dao.create_index()
-            # cursor.execute("use leverx")
-            # rooms_table = """create table if not exists rooms (
-            #                  id int not null primary key,
-            #                  name nvarchar(64) not null
-            #                  );"""
-            # students_table = """create table if not exists students (
-            #                     id int not null primary key,
-            #                     name nvarchar(64) not null,
-            #                     room int not null,
-            #                     birthday datetime not null,
-            #                     sex enum("M", "F") not null,
-            #                     foreign key (room) references rooms(id) on delete cascade
-            #                     );"""
-            # cursor.execute(rooms_table)
-            # cursor.execute(students_table)
-            # for id, room in rooms.items():
-            #     cursor.execute("insert into rooms values(%s, %s)", (room['id'], room['name']))
-            # for id, student in students.items():
-            #     cursor.execute("insert into students values(%s, %s, %s, %s, %s)", (
-            #         student['id'], student['name'], student['room'], student['birthday'], student['sex']))
-            # connection.commit()
-            # print('список комнат и количество студентов в каждой из них')
-            # cursor.execute(
-            #     "select name, count(*) from (select A.name  from rooms as A inner join students as B on A.id = B.room) as A group by name")
-            # for i in cursor.fetchall():
-            #     print(f'{i[0]}, Count {i[1]}')
-            # print('top 5 комнат, где самые маленький средний возраст студентов')
-            # cursor.execute(
-            #     "select A.name, B.AvgAge from rooms as A inner join (SELECT room, avg(DATEDIFF(CURRENT_DATE, STR_TO_DATE(t.birthday, '%Y-%m-%d'))/365) as AvgAge FROM students as t group by room order by AvgAge limit 5) as B on A.id = B.room")
-            # for i in cursor.fetchall():
-            #     print(f'{i[0]}, AvgAge: {i[1]}')
-            # print('top 5 комнат с самой большой разницей в возрасте студентов')
-            # cursor.execute(
-            #     "select room, (max(AgeInYears)-min(AgeInYears)) as MaxDiffAge from (SELECT room, DATEDIFF(CURRENT_DATE, STR_TO_DATE(t.birthday, '%Y-%m-%d'))/365 as AgeInYears FROM students as t) as A group by room order by MaxDiffAge desc limit 5")
-            # for i in cursor.fetchall():
-            #     print(f'{i[0]}, MaxDiffAge: {i[1]}')
-            # print('список комнат где живут разнополые студенты')
-            # cursor.execute(
-            #     "select name from rooms as A inner join (select room, count(sex) as count from (select * from students group by room, sex order by room) as A group by room having count = 2) as B on A.id = B.room")
-            # for i in cursor.fetchall():
-            #     print(i[0])
-            # print("в результате надо сгенерировать SQL запрос который добавить нужные индексы")
-            # with connection.cursor() as cursor:
-            #     cursor.execute("ALTER TABLE students ADD INDEX (sex)")
     finally:
         connection.close()
