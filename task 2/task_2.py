@@ -1,15 +1,14 @@
 import re
+from functools import total_ordering
 
 
+@total_ordering
 class Version:
     def __init__(self, version: str):
         self.major, self.minor, *self.patch = tuple([int(x) for x in Version.transform(version).split('.')])
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __gt__(self, other):
         if self.major > other.major:
@@ -31,9 +30,6 @@ class Version:
                     min.append(0)
                 return self.patch > other.patch
         return False
-
-    def __lt__(self, other):
-        return not self.__gt__(other) and not self.__eq__(other)
 
     @staticmethod
     def transform(patch: str):
