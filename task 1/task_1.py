@@ -1,42 +1,23 @@
 import json
-from dicttoxml import dicttoxml
 import argparse
+from serializers import JsonSerializer, XmlSerializer
+from models import Student, Room
 
 
-class Serializer:
-    def serialize(self, obj):
-        raise NotImplementedError
+def read_objects(path: str, cls: type) -> dict:
+    """read objects from json file"""
+    with open(path, 'r') as f:
+        students = json.loads(f.read())
+        return {student['id']: cls(**student) for student in students}
 
 
-class JsonSerializer(Serializer):
-    def serialize(self, obj):
-        with open('result.json', 'w') as file:
-            json.dump(obj, file, indent=4)
-
-
-class XmlSerializer(Serializer):
-    def serialize(self, obj):
-        my_item_func = lambda x: 'room'
-        xml = dicttoxml(obj.values(), custom_root='rooms', attr_type=False, item_func=my_item_func)
-        with open('result.xml', 'w') as file:
-            file.write(xml.decode('utf-8'))
-
-
-def get_objects(file_path: str):
-    with open(file_path, 'r') as f:
-        return {x['id']: x for x in json.loads(f.read())}
-
-
-def join(rooms: dict, students: dict):
-    for id, student in students.items():
-        lst = rooms[student['room']].get('students', [])
-        if not lst:
-            rooms[student['room']]['students'] = lst
-        lst.append(student)
+def join(rooms: dict, students: dict) -> None:
+    """join rooms and students dicts"""
+    for student in students.values():
+        rooms.get(student.room).add(student)
 
 
 if __name__ == '__main__':
-    serializer = None
     rooms = {}
     students = {}
     parser = argparse.ArgumentParser()
@@ -45,10 +26,10 @@ if __name__ == '__main__':
     parser.add_argument('serializer', type=str, help='Serializer type')
     args = parser.parse_args()
     if args.serializer == 'json':
-        serializer = JsonSerializer()
+        Room.serializer = JsonSerializer()
     elif args.serializer == 'xml':
-        serializer = XmlSerializer()
-    rooms = get_objects('rooms.json')
-    students = get_objects('students.json')
+        Room.serializer = XmlSerializer()
+    rooms = read_objects(args.rooms, Room)
+    students = read_objects(args.students, Student)
     join(rooms, students)
-    serializer.serialize(rooms)
+    Room.save(rooms.values())
