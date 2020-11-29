@@ -19,11 +19,6 @@ def join(rooms: dict, students: dict):
 
 
 if __name__ == '__main__':
-    config = {
-        'host': 'localhost',
-        'user': 'root',
-        'password': 'Vovanu14_',
-    }
     serializer = None
     rooms = {}
     students = {}
@@ -31,7 +26,15 @@ if __name__ == '__main__':
     parser.add_argument('students', type=str)
     parser.add_argument('rooms', type=str)
     parser.add_argument('serializer', type=str, help='Serializer type')
+    parser.add_argument('host', type=str, help='Database host')
+    parser.add_argument('user', type=str, help='Username')
+    parser.add_argument('password', type=str, help='User Password')
     args = parser.parse_args()
+    config = {
+        'host': args.host,
+        'user': args.user,
+        'password': args.password,
+    }
     if args.serializer == 'json':
         serializer = JsonSerializer()
     elif args.serializer == 'xml':
