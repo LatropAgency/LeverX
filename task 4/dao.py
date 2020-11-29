@@ -58,7 +58,7 @@ class RoomDAO(DAO):
         if self.connection.is_connected():
             with self.connection.cursor() as cursor:
                 cursor.execute(
-                    "select name, count(*) from (select A.name  from rooms as A inner join students as B on A.id = B.room) as A group by name")
+                    "select rooms.name, count(*) from rooms inner join students on rooms.id = students.room group by rooms.id;")
                 return cursor.fetchall()
 
     def top_5_rooms_with_min_avg_age_of_students(self):
