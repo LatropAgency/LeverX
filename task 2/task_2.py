@@ -1,46 +1,55 @@
-import re
 from functools import total_ordering
+from itertools import zip_longest
 
 
 @total_ordering
 class Version:
     def __init__(self, version: str):
-        self.major, self.minor, *self.patch = tuple([int(x) for x in Version.transform(version).split('.')])
+        self.version = self.transform(version)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.__dict__ == other.__dict__
 
-    def __gt__(self, other):
-        if self.major > other.major:
-            return True
-        elif self.major == other.major:
-            if self.minor > other.minor:
+    def __gt__(self, other) -> bool:
+        items = zip_longest(self.version, other.version)
+        for index, item in enumerate(items, 0):
+            if None in item and item[0] is None and index > 2:
                 return True
-            elif self.minor == other.minor:
-                if self.patch[0] == other.patch[0]:
-                    if len(self.patch) == 1 and len(other.patch) > 1:
-                        return True
-                    elif len(other.patch) == 1 and len(self.patch) > 1:
-                        return False
-                    elif len(other.patch) == 1 and len(self.patch) == 1:
-                        return False
-                min, max = (self.patch, other.patch) if len(self.patch) < len(other.patch) else (
-                    other.patch, self.patch)
-                while len(min) < len(max):
-                    min.append(0)
-                return self.patch > other.patch
-        return False
+            elif (None not in item and item[0] < item[1]) or (
+                    None in item and (item[0] is None or item[0] is not None and index > 2)):
+                return False
+            elif None not in item and item[0] > item[1]:
+                return True
+        return True
 
-    @staticmethod
-    def transform(patch: str):
+    def transform(self, patch: str) -> list:
         patch = patch.replace("alpha", "0")
         patch = patch.replace("beta", "1")
         patch = patch.replace("rc", "2")
         patch = patch.replace("-", ".")
-        result = re.search(r'[0-9]+([a-z]{1})$', patch)
-        if result:
-            patch = patch.replace(result.group(0), result.group(0)[:-1] + f'.{(ord(result.group(0)[-1]) - 96)}')
-        return patch
+        items = patch.split('.')
+        for index, item in enumerate(items, 0):
+            if not item.isdigit():
+                text_num = self.text_num_split(item)
+                text_num[1] = str(self.letter_to_num(text_num[1]))
+                items = self.insert(items, text_num, index)
+        while len(items) < 3:
+            items.append('0')
+        return items
+
+    def letter_to_num(self, letter) -> int:
+        """convert alphabet letter to his index"""
+        return ord(letter) - 97
+
+    def text_num_split(self, item: str) -> list:
+        """split text to number and letter"""
+        for index, letter in enumerate(item, 0):
+            if not letter.isdigit():
+                return [item[:index], item[index:]]
+
+    def insert(self, items: list, text_num: list, index) -> list:
+        """insert number and letter"""
+        return items[:index] + text_num
 
 
 def main():
