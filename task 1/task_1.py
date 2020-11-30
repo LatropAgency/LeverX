@@ -3,6 +3,10 @@ import argparse
 from serializers import JsonSerializer, XmlSerializer
 from models import Student, Room
 
+serializer_type = {
+    'json': JsonSerializer,
+    'xml': XmlSerializer,
+}
 
 def read_objects(path: str, cls: type) -> dict:
     """read objects from json file"""
@@ -25,10 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('rooms', type=str)
     parser.add_argument('serializer', type=str, help='Serializer type')
     args = parser.parse_args()
-    if args.serializer == 'json':
-        Room.serializer = JsonSerializer()
-    elif args.serializer == 'xml':
-        Room.serializer = XmlSerializer()
+    Room.serializer = serializer_type[args.serializer]()
     rooms = read_objects(args.rooms, Room)
     students = read_objects(args.students, Student)
     join(rooms, students)

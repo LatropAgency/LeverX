@@ -5,6 +5,11 @@ from serializers import JsonSerializer, XmlSerializer
 from dao import StudentDAO, RoomDAO
 from models import Student, Room
 
+serializer_type = {
+    'json': JsonSerializer,
+    'xml': XmlSerializer,
+}
+
 
 def read_objects(path: str, cls: type) -> dict:
     """read objects from json file"""
@@ -35,10 +40,7 @@ if __name__ == '__main__':
         'user': args.user,
         'password': args.password,
     }
-    if args.serializer == 'json':
-        Room.serializer = JsonSerializer()
-    elif args.serializer == 'xml':
-        Room.serializer = XmlSerializer()
+    Room.serializer = serializer_type[args.serializer]()
     rooms = read_objects(args.rooms, Room)
     students = read_objects(args.students, Student)
     join(rooms, students)
