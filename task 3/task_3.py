@@ -13,8 +13,8 @@ class Counter:
             self.value += 1
 
 
-def function(counter: Counter, arg: int):
-    for _ in range(arg):
+def function(counter: Counter, value: int):
+    for _ in range(value):
         counter.inc()
 
 
